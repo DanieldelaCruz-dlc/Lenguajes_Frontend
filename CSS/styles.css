@@ -1,0 +1,76 @@
+/* Configuraciones generales para el Dashboard */
+body {
+    min-height: 100vh;
+    background-color: #f4f6f9; /* Color de fondo ligero y profesional */
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- SIDEBAR (Menú Lateral) --- */
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+    transition: margin 0.3s ease-in-out;
+    background-color: #343a40; /* Gris oscuro elegante */
+    z-index: 1000;
+}
+
+/* Efecto para ocultar el sidebar cuando se presiona el botón */
+#sidebar.collapsed {
+    margin-left: -250px;
+}
+
+/* Estilos para los enlaces del menú */
+#sidebar .nav-link {
+    color: #c2c7d0;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+/* Efecto Hover y Activo en el menú */
+#sidebar .nav-link:hover, 
+#sidebar .nav-link.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- ÁREA PRINCIPAL --- */
+/* Asegurarse de que el contenido no quede oculto detrás de componentes en pantallas pequeñas */
+main {
+    flex: 1;
+    background-color: #f8f9fa;
+}
+
+/* Sombras suaves para las tarjetas (Cards) */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+/* --- TABLAS --- */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+    border-bottom-width: 1px;
+}
+
+/* --- RESPONSIVIDAD (Móviles) --- */
+@media (max-width: 768px) {
+    /* En celulares, el sidebar inicia oculto por defecto */
+    #sidebar {
+        margin-left: -250px;
+        position: fixed;
+    }
+    
+    /* Cuando se activa en móviles, se desliza sobre el contenido */
+    #sidebar.collapsed {
+        margin-left: 0;
+    }
+}
