@@ -1,76 +1,216 @@
-/* Configuraciones generales para el Dashboard */
+/* CSS/styles.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* =========================================
+   1. VARIABLES DE COLOR (MODO CLARO)
+   ========================================= */
+:root {
+    /* Colores Principales (Azul Tecnológico) */
+    --primary-tech: #2563eb;
+    --primary-hover: #1d4ed8;
+    
+    /* Menú Lateral (Índigo Corporativo y Vibrante) */
+    --sidebar-bg: #1e1b4b;       
+    --sidebar-text: #a5b4fc;     
+    --sidebar-active-bg: rgba(99, 102, 241, 0.15);
+    --sidebar-active-text: #818cf8; 
+    
+    /* Fondos y Tarjetas */
+    --bg-body: #f1f5f9;          /* Gris azulado muy suave para dar contraste */
+    --card-bg: #ffffff;          /* Blanco puro para las tarjetas */
+    --border-color: #e2e8f0;     /* Bordes sutiles */
+    
+    /* Texto */
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+/* =========================================
+   2. VARIABLES DE COLOR (MODO OSCURO)
+   ========================================= */
+body.dark-mode {
+    /* Colores Principales (Adaptados para no encandilar) */
+    --primary-tech: #3b82f6;
+    --primary-hover: #60a5fa;
+    
+    /* Menú Lateral (Casi negro con tinte azul) */
+    --sidebar-bg: #020617;       
+    --sidebar-text: #94a3b8;
+    --sidebar-active-bg: rgba(56, 189, 248, 0.1);
+    --sidebar-active-text: #38bdf8;
+    
+    /* Fondos y Tarjetas (Azul Pizarra) */
+    --bg-body: #0f172a;          /* Fondo base nocturno */
+    --card-bg: #1e293b;          /* Tarjetas ligeramente más claras */
+    --border-color: #334155;     /* Bordes oscuros */
+    
+    /* Texto */
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    
+    /* Sombras sutiles oscuras */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
+}
+
+/* =========================================
+   3. ESTILOS GLOBALES
+   ========================================= */
 body {
+    background-color: var(--bg-body);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
     min-height: 100vh;
-    background-color: #f4f6f9; /* Color de fondo ligero y profesional */
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* --- SIDEBAR (Menú Lateral) --- */
+h1, h2, h3, h4, h5, h6 { font-weight: 600; letter-spacing: -0.02em; }
+hr { border-color: var(--border-color); }
+
+/* =========================================
+   4. SIDEBAR (Menú Fijo y Estético)
+   ========================================= */
 #sidebar {
-    min-width: 250px;
-    max-width: 250px;
-    min-height: 100vh;
-    transition: margin 0.3s ease-in-out;
-    background-color: #343a40; /* Gris oscuro elegante */
+    background-color: var(--sidebar-bg) !important;
+    min-width: 260px;
+    max-width: 260px;
+    height: 100vh; 
+    position: sticky; 
+    top: 0; 
+    overflow-y: auto; 
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 1000;
+    transition: background-color 0.4s ease;
 }
 
-/* Efecto para ocultar el sidebar cuando se presiona el botón */
-#sidebar.collapsed {
-    margin-left: -250px;
-}
+#sidebar .fs-5 { letter-spacing: 0.5px; color: #ffffff; }
 
-/* Estilos para los enlaces del menú */
 #sidebar .nav-link {
-    color: #c2c7d0;
-    padding: 10px 15px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-/* Efecto Hover y Activo en el menú */
-#sidebar .nav-link:hover, 
-#sidebar .nav-link.active {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* --- ÁREA PRINCIPAL --- */
-/* Asegurarse de que el contenido no quede oculto detrás de componentes en pantallas pequeñas */
-main {
-    flex: 1;
-    background-color: #f8f9fa;
-}
-
-/* Sombras suaves para las tarjetas (Cards) */
-.card {
-    border: none;
+    color: var(--sidebar-text);
+    padding: 12px 20px;
+    margin-bottom: 4px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-/* --- TABLAS --- */
-.table {
+#sidebar .nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(4px);
+}
+
+#sidebar .nav-link.active {
+    color: var(--sidebar-active-text);
+    background-color: var(--sidebar-active-bg);
+    border-left: 4px solid var(--sidebar-active-text);
+    border-radius: 4px 8px 8px 4px;
+}
+
+/* =========================================
+   5. TARJETAS Y PANELES (Profundidad)
+   ========================================= */
+header.navbar {
+    background-color: var(--card-bg) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.navbar-brand { color: var(--text-main) !important; font-weight: 600; }
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    color: var(--text-main);
+    transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.card-header, .card-footer { 
+    background-color: transparent !important; 
+    border-color: var(--border-color) !important; 
+}
+.text-muted { color: var(--text-muted) !important; }
+
+/* =========================================
+   6. TABLAS Y BOTONES
+   ========================================= */
+/* Adaptación de tablas Bootstrap para que respeten nuestras variables */
+.table { 
+    color: var(--text-main); 
+    --bs-table-bg: transparent; 
+    --bs-table-color: var(--text-main);
+    --bs-table-border-color: var(--border-color);
     margin-bottom: 0;
 }
-
 .table th {
+    text-transform: uppercase;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #495057;
-    border-bottom-width: 1px;
+    color: var(--text-muted);
+    background-color: rgba(0,0,0,0.02) !important;
+}
+body.dark-mode .table th { background-color: rgba(255,255,255,0.02) !important; }
+
+/* Botón Primario */
+.btn-primary {
+    background-color: var(--primary-tech);
+    border-color: var(--primary-tech);
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
 }
 
-/* --- RESPONSIVIDAD (Móviles) --- */
-@media (max-width: 768px) {
-    /* En celulares, el sidebar inicia oculto por defecto */
-    #sidebar {
-        margin-left: -250px;
-        position: fixed;
-    }
-    
-    /* Cuando se activa en móviles, se desliza sobre el contenido */
-    #sidebar.collapsed {
-        margin-left: 0;
-    }
+/* =========================================
+   7. FORMULARIOS Y MODALES
+   ========================================= */
+.form-control, .form-select, .input-group-text {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
+
+body.dark-mode .form-control, 
+body.dark-mode .form-select, 
+body.dark-mode .input-group-text {
+    background-color: #0f172a; /* Fondo más oscuro para inputs en modo oscuro */
+    color: #f8fafc;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border-color: var(--primary-tech);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+.modal-header { border-bottom: 1px solid var(--border-color); }
+.modal-footer { border-top: 1px solid var(--border-color); }
+
+/* =========================================
+   8. CUSTOM SCROLLBAR
+   ========================================= */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-body); }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+body.dark-mode ::-webkit-scrollbar-thumb { background: #475569; }

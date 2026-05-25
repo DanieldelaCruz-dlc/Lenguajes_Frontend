@@ -1,6 +1,9 @@
 // js/app.js
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Iniciar modo oscuro de inmediato para evitar flashes blancos
+    inicializarModoOscuro();
+
     await cargarMenuLateral();
     inicializarEventosGlobales();
 });
@@ -96,4 +99,33 @@ function showAlert(message, type = 'success') {
             bsAlert.close();
         }
     }, 4000);
+}
+
+function inicializarModoOscuro() {
+    // Leer la preferencia guardada en el navegador
+    const prefersDark = localStorage.getItem('minerva_darkmode') === 'true';
+    
+    // Aplicar la clase al body si es necesario
+    if (prefersDark) {
+        document.body.classList.add('dark-mode');
+    }
+
+    // Si el usuario está en configuracion.html, vincular el botón switch
+    const toggleDarkMode = document.getElementById('darkMode');
+    if (toggleDarkMode) {
+        // Asegurar que el switch muestre el estado correcto al cargar
+        toggleDarkMode.checked = prefersDark;
+        
+        // Escuchar cada vez que el usuario lo activa/desactiva
+        toggleDarkMode.addEventListener('change', (e) => {
+            const isDark = e.target.checked;
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('minerva_darkmode', 'true');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('minerva_darkmode', 'false');
+            }
+        });
+    }
 }
