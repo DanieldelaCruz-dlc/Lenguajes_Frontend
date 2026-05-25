@@ -1,16 +1,7 @@
 // js/app.js
 
-// 1. GUARDIÁN DE RUTAS (Sin esperar al DOM para evitar parpadeos)
-const token = localStorage.getItem('minerva_token');
-if (!token && !window.location.pathname.includes('login.html')) {
-    window.location.href = 'login.html';
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // 2. Cargar el menú lateral dinámicamente
     await cargarMenuLateral();
-
-    // 3. Ejecutar eventos globales del menú
     inicializarEventosGlobales();
 });
 
@@ -19,12 +10,22 @@ async function cargarMenuLateral() {
         const response = await fetch('menu.html');
         if (!response.ok) throw new Error('No se pudo cargar el menú');
         
-        const html = await response.text();
-        document.getElementById('menu-container').innerHTML = html;
+        document.getElementById('menu-container').innerHTML = await response.text();
 
         resaltarMenuActivo();
+        aplicarPermisosPorRol(); 
     } catch (error) {
         console.error('Error cargando el menú:', error);
+    }
+}
+
+function aplicarPermisosPorRol() {
+    const rol = localStorage.getItem('minerva_rol');
+    
+    // Si NO es admin, removemos los elementos restringidos del HTML
+    if (rol !== 'ADMIN') {
+        const elementosPrivados = document.querySelectorAll('.auth-admin');
+        elementosPrivados.forEach(elemento => elemento.remove());
     }
 }
 
@@ -54,29 +55,40 @@ function inicializarEventosGlobales() {
     }
 }
 
-// 4. LÓGICA DE "CERRAR SESIÓN" (Delegación de eventos)
-// Escuchamos los clics en todo el documento para asegurar que detecte el botón inyectado
+// Delegación de eventos para Cerrar Sesión
 document.addEventListener('click', (e) => {
     if (e.target && e.target.id === 'btn-cerrar-sesion') {
         e.preventDefault();
         if (confirm("¿Estás seguro de que deseas salir del Sistema Minerva?")) {
             localStorage.removeItem('minerva_token');
             localStorage.removeItem('minerva_usuario');
-            window.location.href = 'login.html';
+            localStorage.removeItem('minerva_rol');
+            window.location.replace('login.html');
         }
     }
 });
 
-// Funciones de Alertas
+// Utilidad global para alertas
 function showAlert(message, type = 'success') {
-    const alertContainer = document.getElementById('alert-container') || crearContenedorAlertas();
+    let alertContainer = document.getElementById('alert-container');
+    if (!alertContainer) {
+        alertContainer = document.createElement('div');
+        alertContainer.id = 'alert-container';
+        alertContainer.style.position = 'fixed';
+        alertContainer.style.top = '20px';
+        alertContainer.style.right = '20px';
+        alertContainer.style.zIndex = '1050';
+        document.body.appendChild(alertContainer);
+    }
+
     const alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
     alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+
     setTimeout(() => {
         const alertElement = alertContainer.lastElementChild;
         if (alertElement) {
@@ -84,15 +96,4 @@ function showAlert(message, type = 'success') {
             bsAlert.close();
         }
     }, 4000);
-}
-
-function crearContenedorAlertas() {
-    const container = document.createElement('div');
-    container.id = 'alert-container';
-    container.style.position = 'fixed';
-    container.style.top = '20px';
-    container.style.right = '20px';
-    container.style.zIndex = '1050';
-    document.body.appendChild(container);
-    return container;
 }
