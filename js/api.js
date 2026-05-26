@@ -1,47 +1,71 @@
 // js/api.js
 
-// URL base de la API de tus compañeros (cámbiala según lo que ellos te indiquen)
 const API_BASE_URL = 'http://localhost:8080/api';
 
-/**
- * Función genérica para hacer peticiones al backend de forma limpia.
- * Usamos async/await para que el código sea más legible.
- */
 async function apiFetch(endpoint, method = 'GET', body = null) {
+
+    const token = localStorage.getItem('minerva_token');
+
     const options = {
-        method: method,
+        method,
         headers: {
-            'Content-Type': 'application/json',
-            // Aquí luego puedes agregar el token de autorización si hay login
-            // 'Authorization': 'Bearer ' + localStorage.getItem('token')
+            'Content-Type': 'application/json'
         }
     };
+
+    if (token) {
+        options.headers.Authorization = `Bearer ${token}`;
+    }
 
     if (body) {
         options.body = JSON.stringify(body);
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-        
+
+        const response =
+            await fetch(`${API_BASE_URL}${endpoint}`, options);
+
         if (!response.ok) {
-            throw new Error(`Error en la petición: ${response.status} ${response.statusText}`);
+
+            let error = 'Error inesperado';
+
+            try {
+                const data = await response.json();
+                error = data.detail || error;
+            }
+            catch {}
+
+            throw new Error(error);
         }
-        
-        // Si la respuesta no tiene contenido (ej. un DELETE exitoso), devolvemos null
-        if (response.status === 204) return null;
-        
+
+        if (response.status === 204) {
+            return null;
+        }
+
         return await response.json();
+
     } catch (error) {
-        console.error("🔥 Error en la API:", error);
-        throw error; // Lanzamos el error para manejarlo en la vista correspondiente
+
+        console.error(error);
+        throw error;
+
     }
 }
 
-// Exportamos un objeto con métodos fáciles de usar
 const api = {
-    get: (endpoint) => apiFetch(endpoint, 'GET'),
-    post: (endpoint, body) => apiFetch(endpoint, 'POST', body),
-    put: (endpoint, body) => apiFetch(endpoint, 'PUT', body),
-    delete: (endpoint) => apiFetch(endpoint, 'DELETE')
+    get: (endpoint) =>
+        apiFetch(endpoint, 'GET'),
+
+    post: (endpoint, body) =>
+        apiFetch(endpoint, 'POST', body),
+
+    put: (endpoint, body) =>
+        apiFetch(endpoint, 'PUT', body),
+
+    patch: (endpoint, body) =>
+        apiFetch(endpoint, 'PATCH', body),
+
+    delete: (endpoint) =>
+        apiFetch(endpoint, 'DELETE')
 };

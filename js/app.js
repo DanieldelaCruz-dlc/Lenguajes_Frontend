@@ -129,3 +129,40 @@ function inicializarModoOscuro() {
         });
     }
 }
+
+document.addEventListener(
+'DOMContentLoaded',
+mostrarDatosSesion
+);
+
+function mostrarDatosSesion(){
+
+const usuario=
+localStorage.getItem(
+'minerva_usuario'
+)||'Usuario';
+
+const rol=
+localStorage.getItem(
+'minerva_rol'
+)||'SIN ROL';
+
+const usuarioUI=
+document.getElementById(
+'usuario-logueado'
+);
+
+const rolUI=
+document.getElementById(
+'rol-logueado'
+);
+
+if(usuarioUI)
+usuarioUI.textContent=
+usuario;
+
+if(rolUI)
+rolUI.textContent=
+rol;
+
+}

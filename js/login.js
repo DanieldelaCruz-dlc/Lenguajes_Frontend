@@ -1,30 +1,111 @@
 // js/login.js
 
 document.addEventListener('DOMContentLoaded', () => {
+
     if (localStorage.getItem('minerva_token')) {
         window.location.replace('index.html');
     }
+
+    iniciarLogin();
+
 });
 
-document.getElementById('form-login').addEventListener('submit', (e) => {
-    e.preventDefault();
+function iniciarLogin() {
 
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    const errorMsg = document.getElementById('login-error');
+    const form =
+        document.getElementById('form-login');
 
-    // Validación basada en roles simulada
-    if (user === 'admin' && pass === '1234') {
-        localStorage.setItem('minerva_token', 'token-valido');
-        localStorage.setItem('minerva_usuario', user);
-        localStorage.setItem('minerva_rol', 'ADMIN');
-        window.location.replace('index.html');
-    } else if (user === 'operador' && pass === '1234') {
-        localStorage.setItem('minerva_token', 'token-valido');
-        localStorage.setItem('minerva_usuario', user);
-        localStorage.setItem('minerva_rol', 'OPERADOR');
-        window.location.replace('index.html');
-    } else {
-        errorMsg.classList.remove('d-none');
-    }
-});
+    form.addEventListener('submit', async (e) => {
+
+        e.preventDefault();
+
+        const usuario =
+            document.getElementById('username').value;
+
+        const password =
+            document.getElementById('password').value;
+
+        const error =
+            document.getElementById('login-error');
+
+        error.classList.add('d-none');
+
+        try {
+
+            /*
+            BACKEND:
+            Cambiar endpoint aquí
+            */
+
+            /*
+            const response =
+                await api.post('/auth/login',{
+                    username:usuario,
+                    password
+                });
+            */
+
+            // simulación temporal
+
+            if (
+                usuario === 'admin'
+                &&
+                password === '1234'
+            ) {
+
+                localStorage.setItem(
+                    'minerva_token',
+                    'token-demo'
+                );
+
+                localStorage.setItem(
+                    'minerva_usuario',
+                    usuario
+                );
+
+                localStorage.setItem(
+                    'minerva_rol',
+                    'ADMIN'
+                );
+
+            }
+
+            else {
+
+                localStorage.setItem(
+                    'minerva_token',
+                    'token-demo'
+                );
+
+                localStorage.setItem(
+                    'minerva_usuario',
+                    usuario
+                );
+
+                localStorage.setItem(
+                    'minerva_rol',
+                    'OPERADOR'
+                );
+
+            }
+
+            window.location.replace(
+                'index.html'
+            );
+
+        }
+
+        catch {
+
+            error.textContent =
+                'Credenciales inválidas';
+
+            error.classList.remove(
+                'd-none'
+            );
+
+        }
+
+    });
+
+}
