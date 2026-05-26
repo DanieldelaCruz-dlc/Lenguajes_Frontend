@@ -34,17 +34,49 @@
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm text-center">
                         <div class="card-body">
-                            <i class="bi bi-person-circle text-secondary mb-3" style="font-size: 5rem;"></i>
-                            <h4 class="card-title fw-bold"id="perfil-usuario">
-                                Usuario</h4>
-                            <p class="text-muted mb-1" id="perfil-correo"> correo@minerva.com </p>
-                            <span class="badge bg-primary" id="perfil-rol"> Rol </span>
+
+                            <i class="bi bi-person-circle text-secondary mb-3"
+                            style="font-size: 5rem;"
+                            id="perfil-foto">
+                            </i>
+
+                            <h4 class="card-title fw-bold" id="perfil-usuario">
+                                Usuario
+                            </h4>
+
+                            <p class="text-muted mb-1" id="perfil-correo">
+                                correo@minerva.com
+                            </p>
+
+                            <span class="badge bg-primary" id="perfil-rol">
+                                Rol
+                            </span>
+
                         </div>
+
                         <div class="card-footer bg-white">
-                            <button class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-camera"></i> Cambiar Foto</button>
+
+                            <input
+                                type="file"
+                                id="input-foto"
+                                class="d-none"
+                                accept="image/*"
+                            >
+
+                            <button
+                                class="btn btn-outline-primary btn-sm w-100"
+                                id="btn-cambiar-foto"
+                                type="button">
+
+                                <i class="bi bi-camera"></i>
+                                Cambiar Foto
+
+                            </button>
+
                         </div>
                     </div>
                 </div>
+            
 
                 <div class="col-md-8">
                     <div class="card shadow-sm">
