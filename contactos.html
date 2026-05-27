@@ -59,6 +59,7 @@
                                     <tr>
                                         <th>ID / Nombre</th>
                                         <th>Teléfono</th>
+                                        <th>Tipo de Cliente</th>
                                         <th>Fecha Registro</th>
                                         <th class="text-end pe-4">Acciones</th>
                                     </tr>
@@ -85,6 +86,7 @@
                                         <th>Nombre del Proveedor</th>
                                         <th>RUC</th>
                                         <th>Teléfono</th>
+                                        <th>Estado</th>
                                         <th class="text-end pe-4">Acciones</th>
                                     </tr>
                                 </thead>
@@ -106,13 +108,23 @@
                         </div>
                         <div class="modal-body">
                             <form id="form-cliente">
-                                <input type="hidden" id="cli-idViejo"> <div class="mb-3">
-                                    <label class="form-label">Nombre del Cliente / ID</label>
+                                <input type="hidden" id="cli-idViejo">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Nombre del Cliente / ID</label>
                                     <input type="text" class="form-control" id="cli-nombre" required placeholder="Ej. Juan Pérez">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Teléfono</label>
-                                    <input type="text" class="form-control" id="cli-telefono" required placeholder="Ej. 987654321" maxlength="9">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Teléfono</label>
+                                        <input type="text" class="form-control" id="cli-telefono" required placeholder="Ej. 987654321" maxlength="9">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Tipo (RF-03)</label>
+                                        <select class="form-select" id="cli-tipo" required>
+                                            <option value="Minorista">Minorista</option>
+                                            <option value="Mayorista">Mayorista</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -135,18 +147,25 @@
                             <form id="form-proveedor">
                                 <input type="hidden" id="prov-idViejo">
                                 <div class="mb-3">
-                                    <label class="form-label">Razón Social / Nombre</label>
+                                    <label class="form-label fw-bold">Razón Social / Nombre</label>
                                     <input type="text" class="form-control" id="prov-nombre" required placeholder="Ej. Tech Supplies S.A.">
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">RUC</label>
+                                        <label class="form-label fw-bold">RUC</label>
                                         <input type="text" class="form-control" id="prov-ruc" required placeholder="11 dígitos" maxlength="11">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Teléfono</label>
+                                        <label class="form-label fw-bold">Teléfono</label>
                                         <input type="text" class="form-control" id="prov-telefono" required placeholder="Ej. 999888777" maxlength="9">
                                     </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Estado del Proveedor</label>
+                                    <select class="form-select" id="prov-estado" required>
+                                        <option value="Activo">Activo (Habilitado para Compras)</option>
+                                        <option value="Inactivo">Inactivo (Suspendido)</option>
+                                    </select>
                                 </div>
                             </form>
                         </div>
