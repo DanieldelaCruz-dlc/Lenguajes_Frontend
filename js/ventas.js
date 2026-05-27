@@ -1,13 +1,13 @@
 // js/ventas.js
 
-// Simulamos la base de datos de productos
+// Inventario simulado con la propiedad 'barcode' alineada al esquema relacional de productos
 const inventarioPOS = [
-    { id: 1, nombre: 'Laptop Dell Inspiron', precio: 850.00, stock: 15 },
-    { id: 2, nombre: 'Mouse Inalámbrico Logitech', precio: 25.50, stock: 50 },
-    { id: 3, nombre: 'Monitor Samsung 24"', precio: 180.00, stock: 8 },
-    { id: 4, nombre: 'Teclado Mecánico RGB', precio: 65.00, stock: 12 },
-    { id: 5, nombre: 'Cable HDMI 2m', precio: 8.00, stock: 30 },
-    { id: 6, nombre: 'Hub USB-C Multipuerto', precio: 35.00, stock: 0 } // Producto sin stock de prueba
+    { id: 1, nombre: 'Laptop Dell Inspiron', barcode: '7501234567890', precio: 850.00, stock: 15 },
+    { id: 2, nombre: 'Mouse Inalámbrico Logitech', barcode: '7501234567891', precio: 25.50, stock: 50 },
+    { id: 3, nombre: 'Monitor Samsung 24"', barcode: '7501234567892', precio: 180.00, stock: 8 },
+    { id: 4, nombre: 'Teclado Mecánico RGB', barcode: '7501234567893', precio: 65.00, stock: 12 },
+    { id: 5, nombre: 'Cable HDMI 2m', barcode: '7501234567894', precio: 8.00, stock: 30 },
+    { id: 6, Hub: 'Hub USB-C Multipuerto', barcode: '7501234567895', precio: 35.00, stock: 0 }
 ];
 
 let carrito = [];
@@ -15,30 +15,46 @@ let totales = { subtotal: 0, igv: 0, total: 0 };
 let modalBoleta;
 
 document.addEventListener('DOMContentLoaded', () => {
-    modalBoleta = new bootstrap.Modal(document.getElementById('modalBoleta'));
+    const modalElement = document.getElementById('modalBoleta');
+    if (modalElement) {
+        modalBoleta = new bootstrap.Modal(modalElement);
+    }
     
-    // Renderizar catálogo completo al iniciar
     renderizarCatálogoPOS('');
 
-    // Escuchar la barra de búsqueda para filtrar
     const inputBusqueda = document.getElementById('buscar-prod');
     if (inputBusqueda) {
         inputBusqueda.addEventListener('input', (e) => {
             renderizarCatálogoPOS(e.target.value);
         });
     }
+
+    // Cambiar texto dinámico del botón según el tipo de comprobante seleccionado
+    const selectComprobante = document.getElementById('tipo-comprobante');
+    if (selectComprobante) {
+        selectComprobante.addEventListener('change', (e) => {
+            const btnPago = document.getElementById('btn-procesar');
+            if (btnPago) {
+                btnPago.innerHTML = e.target.value === 'BOLETA' 
+                    ? '<i class="bi bi-check-circle"></i> Emitir Boleta y Cobrar' 
+                    : '<i class="bi bi-check-circle"></i> Emitir Factura y Cobrar';
+            }
+        });
+    }
 });
 
-// 1. RENDERIZAR Y FILTRAR CATÁLOGO
+// 1. RENDERIZAR Y FILTRAR CATÁLOGO (Busca por Nombre y por Código de Barras)
 function renderizarCatálogoPOS(filtro) {
     const contenedor = document.getElementById('lista-busqueda');
+    if (!contenedor) return;
     contenedor.innerHTML = '';
 
     const termino = filtro.trim().toLowerCase();
     
-    // Filtrar inventario si hay texto, si no, mostrarlos todos
+    // Filtrado por coincidencia en nombre o en el string del código de barras
     const resultados = inventarioPOS.filter(prod => 
-        prod.nombre.toLowerCase().includes(termino)
+        prod.nombre.toLowerCase().includes(termino) || 
+        (prod.barcode && prod.barcode.includes(termino))
     );
 
     if (resultados.length === 0) {
@@ -55,6 +71,7 @@ function renderizarCatálogoPOS(filtro) {
             <div class="list-group-item d-flex justify-content-between align-items-center py-3 ${opacidad}">
                 <div>
                     <h6 class="mb-1 fw-bold">${prod.nombre}</h6>
+                    <div class="text-muted small mb-1"><i class="bi bi-barcode"></i> ${prod.barcode || 'S/C'}</div>
                     <div class="text-success fw-medium">$${prod.precio.toFixed(2)} <span class="badge ${badgeColor} ms-2">Stock: ${prod.stock}</span></div>
                 </div>
                 
@@ -72,27 +89,25 @@ function renderizarCatálogoPOS(filtro) {
     });
 }
 
-// 2. AGREGAR AL CARRITO (Con cantidad específica)
+// 2. AGREGAR AL CARRITO
 function agregarAlCarritoDesdeCatalogo(idProducto) {
     const producto = inventarioPOS.find(p => p.id === idProducto);
     if (!producto) return;
 
-    // Leer la cantidad seleccionada en el input
     const inputQty = document.getElementById(`qty-prod-${idProducto}`);
     const cantidadA_Agregar = parseInt(inputQty.value);
 
     if (isNaN(cantidadA_Agregar) || cantidadA_Agregar <= 0) {
-        showAlert('Ingresa una cantidad válida.', 'warning');
+        if (typeof showAlert === "function") showAlert('Ingresa una cantidad válida.', 'warning');
         return;
     }
 
-    // Verificar si el producto ya está en el carrito
     const itemEnCarrito = carrito.find(item => item.id === idProducto);
     const cantidadActualEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
     const nuevaCantidadTotal = cantidadActualEnCarrito + cantidadA_Agregar;
 
     if (nuevaCantidadTotal > producto.stock) {
-        showAlert(`Stock insuficiente. Solo quedan ${producto.stock - cantidadActualEnCarrito} unidades disponibles para agregar.`, 'danger');
+        if (typeof showAlert === "function") showAlert(`Stock insuficiente. Solo quedan ${producto.stock - cantidadActualEnCarrito} unidades.`, 'danger');
         return;
     }
 
@@ -108,18 +123,17 @@ function agregarAlCarritoDesdeCatalogo(idProducto) {
         });
     }
 
-    // Restablecer el input a 1 por comodidad
     inputQty.value = 1;
-    
     actualizarTicketUI();
 }
 
-// 3. ACTUALIZAR INTERFAZ DEL TICKET Y CÁLCULOS
+// 3. ACTUALIZAR INTERFAZ Y CÁLCULOS (Desglose de Impuestos Oficiales)
 function actualizarTicketUI() {
     const tbody = document.getElementById('carrito-body');
+    if (!tbody) return;
     tbody.innerHTML = '';
     
-    let subtotalPuro = 0;
+    let totalVentaBruto = 0;
 
     if (carrito.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-5"><i class="bi bi-cart-x fs-2 d-block mb-2"></i>El carrito está vacío</td></tr>`;
@@ -131,7 +145,7 @@ function actualizarTicketUI() {
 
     carrito.forEach((item, index) => {
         const subtotalItem = item.precio * item.cantidad;
-        subtotalPuro += subtotalItem;
+        totalVentaBruto += subtotalItem;
 
         tbody.innerHTML += `
             <tr>
@@ -142,7 +156,7 @@ function actualizarTicketUI() {
                         <input type="text" class="form-control text-center px-0 bg-transparent" value="${item.cantidad}" readonly>
                         <button class="btn btn-outline-secondary px-2" type="button" onclick="cambiarCantidadCarrito(${index}, 1)">+</button>
                     </div>
-                </td>
+                </div>
                 <td class="text-end fw-medium" style="width: 20%; font-size: 0.9rem;">$${subtotalItem.toFixed(2)}</td>
                 <td class="text-end" style="width: 5%;">
                     <button class="btn btn-sm text-danger px-1" onclick="quitarDelCarrito(${index})"><i class="bi bi-x-lg"></i></button>
@@ -151,17 +165,17 @@ function actualizarTicketUI() {
         `;
     });
 
-    // Calcular totales (Simulando IGV del 18%)
-    totales.subtotal = subtotalPuro / 1.18;
-    totales.igv = subtotalPuro - totales.subtotal;
-    totales.total = subtotalPuro;
+    // Operación matemática inversa para extraer la base imponible y el impuesto (18% IGV Peruano)
+    totales.total = totalVentaBruto;
+    totales.subtotal = totalVentaBruto / 1.18;
+    totales.igv = totalVentaBruto - totales.subtotal;
 
     document.getElementById('subtotal-venta').innerText = `$${totales.subtotal.toFixed(2)}`;
     document.getElementById('igv-venta').innerText = `$${totales.igv.toFixed(2)}`;
     document.getElementById('total-venta').innerText = `$${totales.total.toFixed(2)}`;
 }
 
-// 4. MODIFICAR CANTIDADES DENTRO DEL CARRITO
+// 4. MODIFICAR CANTIDADES EN CARRITO
 function cambiarCantidadCarrito(index, cambio) {
     const item = carrito[index];
     const nuevaCantidad = item.cantidad + cambio;
@@ -169,7 +183,7 @@ function cambiarCantidadCarrito(index, cambio) {
     if (nuevaCantidad <= 0) {
         quitarDelCarrito(index);
     } else if (nuevaCantidad > item.stockMaximo) {
-        showAlert(`Stock máximo alcanzado (${item.stockMaximo} unid.)`, 'warning');
+        if (typeof showAlert === "function") showAlert(`Stock máximo alcanzado (${item.stockMaximo} unid.)`, 'warning');
     } else {
         item.cantidad = nuevaCantidad;
         actualizarTicketUI();
@@ -188,36 +202,35 @@ function vaciarCarrito() {
     }
 }
 
-// 5. PROCESAR VENTA Y GENERAR BOLETA
+// 5. PROCESAR VENTA (Simulando persistencia en tablas sale y sale_detail)
 function procesarVenta() {
     if (carrito.length === 0) {
-        showAlert('No hay productos en el carrito.', 'danger');
+        if (typeof showAlert === "function") showAlert('No hay productos en el carrito.', 'danger');
         return;
     }
 
     const btnPago = document.getElementById('btn-procesar');
     const textoOriginal = btnPago.innerHTML;
-    btnPago.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando pago...';
+    btnPago.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Registrando venta...';
     btnPago.disabled = true;
 
-    // Simulamos el tiempo de respuesta del servidor (Backend)
     setTimeout(() => {
-        // Reducir stock lógico
+        // Descontar existencias lógicas de la tabla de productos
         carrito.forEach(item => {
             const prod = inventarioPOS.find(p => p.id === item.id);
             if(prod) prod.stock -= item.cantidad;
         });
 
-        // Generar el HTML de la Boleta
+        // Dibujar el comprobante según la selección de la cabecera
         generarBoletaHTML();
 
-        // Mostrar Modal de la boleta
-        modalBoleta.show();
+        if (modalBoleta) {
+            modalBoleta.show();
+        }
 
-        // Limpiar carrito y resetear vista
         carrito = [];
         actualizarTicketUI();
-        renderizarCatálogoPOS(document.getElementById('buscar-prod').value); // Refresca los badges de stock
+        renderizarCatálogoPOS(document.getElementById('buscar-prod').value); 
         
         btnPago.innerHTML = textoOriginal;
         btnPago.disabled = false;
@@ -225,21 +238,28 @@ function procesarVenta() {
     }, 1000);
 }
 
-// 6. DIBUJAR LA BOLETA (Formato Ticket)
+// 6. GENERAR TICKET (Adaptado dinámicamente a Boleta o Factura)
 function generarBoletaHTML() {
     const contenedor = document.getElementById('contenido-boleta');
+    if (!contenedor) return;
+    
     const fecha = new Date();
-    const numeroBoleta = Math.floor(Math.random() * 900000) + 100000; // Número aleatorio de 6 dígitos
+    const numeroComprobante = Math.floor(Math.random() * 900000) + 100000;
     const cajero = localStorage.getItem('minerva_usuario') || 'Cajero 1';
+    
+    // Obtener la selección actual del DOM
+    const selectComprobante = document.getElementById('tipo-comprobante');
+    const tipoDocumento = selectComprobante ? selectComprobante.value : 'BOLETA';
+    const abreviatura = tipoDocumento === 'BOLETA' ? 'B001' : 'F001';
 
     let htmlItems = '';
     carrito.forEach(item => {
         const sub = (item.precio * item.cantidad).toFixed(2);
         htmlItems += `
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 2px;">
-                <span style="text-align: left; width: 60%;">${item.cantidad}x ${item.nombre.substring(0, 15)}</span>
-                <span style="width: 20%;">$${item.precio.toFixed(2)}</span>
-                <span style="text-align: right; width: 20%;">$${sub}</span>
+                <span style="text-align: left; width: 55%;">${item.cantidad}x ${item.nombre.substring(0, 14)}</span>
+                <span style="width: 22%; text-align: right;">$${item.precio.toFixed(2)}</span>
+                <span style="text-align: right; width: 23%;">$${sub}</span>
             </div>
         `;
     });
@@ -247,13 +267,13 @@ function generarBoletaHTML() {
     contenedor.innerHTML = `
         <div style="color: black;">
             <h4 class="fw-bold mb-0">MINERVA S.A.C.</h4>
-            <small>Av. Principal 123, Ciudad</small><br>
+            <small>Av. Principal 123, Lima</small><br>
             <small>RUC: 20123456789</small>
             <div style="border-bottom: 1px dashed black; margin: 10px 0;"></div>
             
             <div style="text-align: left; font-size: 0.85rem;">
-                <strong>BOLETA ELECTRÓNICA</strong><br>
-                Nro: B001-${numeroBoleta}<br>
+                <strong>${tipoDocumento} ELECTRÓNICA</strong><br>
+                Nro: ${abreviatura}-${numeroComprobante}<br>
                 Fecha: ${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}<br>
                 Cajero: ${cajero.toUpperCase()}
             </div>
@@ -261,9 +281,9 @@ function generarBoletaHTML() {
             <div style="border-bottom: 1px dashed black; margin: 10px 0;"></div>
             
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">
-                <span style="text-align: left; width: 60%;">DESCRIPCIÓN</span>
-                <span style="width: 20%;">P.U</span>
-                <span style="text-align: right; width: 20%;">IMP.</span>
+                <span style="text-align: left; width: 55%;">CANT / DESCR.</span>
+                <span style="width: 22%; text-align: right;">P.U</span>
+                <span style="text-align: right; width: 23%;">TOTAL</span>
             </div>
             
             ${htmlItems}
@@ -271,13 +291,14 @@ function generarBoletaHTML() {
             <div style="border-bottom: 1px dashed black; margin: 10px 0;"></div>
             
             <div style="text-align: right; font-size: 0.9rem;">
-                Subtotal: $${totales.subtotal.toFixed(2)}<br>
+                Op. Gravada: $${totales.subtotal.toFixed(2)}<br>
                 IGV (18%): $${totales.igv.toFixed(2)}<br>
                 <strong style="font-size: 1.1rem;">TOTAL: $${totales.total.toFixed(2)}</strong>
             </div>
             
             <div style="border-bottom: 1px dashed black; margin: 10px 0;"></div>
-            <small>¡Gracias por su compra!</small>
+            <small>Representación impresa de Comprobante Electrónico.</small><br>
+            <small class="fw-bold">¡Gracias por su preferencia!</small>
         </div>
     `;
 }
